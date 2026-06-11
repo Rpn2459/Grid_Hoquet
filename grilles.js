@@ -39,7 +39,7 @@ const GRILLES = [
       {num:2,  txt:"Il complète parfois le numéro de la rue", len:3},
       {num:3,  txt:"Registre officiel des parcelles d'une commune", len:8},
       {num:5,  txt:"Somme avancée par la banque pour l'achat", len:4},
-      {num:8,  txt:"Permettre l'accès à un lieu", len:5},
+      {num:8,  txt:"Se trouve entre sésame et toit", len:5},
       {num:9,  txt:"Niveau desservi par l'escalier", len:5},
       {num:10, txt:"Comment partent les biens bien placés !", len:4}
     ],
