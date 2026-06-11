@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1A2E5A">
+<title>Mots Croisés Immobilier – Guy Hoquet Saint-Omer</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bleu: #1A2E5A;
+  --bleu-ciel: #4A90D9;
+  --bleu-clair: #7BB8F0;
+  --fond: #EEF3FB;
+  --ok: #d9f2dd;
+  --ok-txt: #1c7a30;
+  --ko: #fde2e2;
+  --ko-txt: #b32222;
+}
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #e2e9f4;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 10px 48px;
+}
+
+/* ── Barre d'outils ── */
+.toolbar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 12px;
+  background: #fff; border: 1px solid #d0ddef; border-radius: 12px;
+  padding: 8px 12px; max-width: 660px; width: 100%;
+}
+.btn {
+  background: var(--fond); border: 2px solid transparent; border-radius: 8px;
+  padding: 7px 13px; font-size: 12px; font-weight: 700; color: var(--bleu);
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { border-color: var(--bleu-ciel); }
+.btn-primary { background: var(--bleu); color: #fff; }
+.btn-danger:hover { border-color: #cc2222; color: #cc2222; }
+select.btn { appearance: auto; }
+
+.hint {
+  font-size: 11px; color: var(--bleu-ciel); text-align: center;
+  margin-bottom: 10px; min-height: 16px; font-weight: 600;
+}
+.hint.win { color: var(--ok-txt); font-size: 13px; }
+
+/* ── Carte ── */
+.card {
+  background: #fff; border-radius: 18px; border: 1px solid #d0ddef;
+  width: 100%; max-width: 660px;
+  box-shadow: 0 4px 28px rgba(26,46,90,.10); overflow: hidden;
+}
+.card-header {
+  background: var(--bleu); padding: 16px 24px 10px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.card-header .deco { position: absolute; color: var(--bleu-ciel); opacity: .5; }
+.card-header h1 { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+.card-header p  { color: var(--bleu-clair); font-size: 9px; letter-spacing: 3px; margin-top: 2px; }
+#logo-img { display: none; max-height: 54px; max-width: 70%; margin: 0 auto; }
+.title-band {
+  background: var(--bleu-ciel); margin: 0 60px; border-radius: 0 0 14px 14px;
+  padding: 6px 0; text-align: center; font-size: 12px; font-weight: 700;
+  color: #fff; letter-spacing: 2px; position: relative;
+}
+.title-band::before { content:''; position:absolute; top:0; bottom:0; left:-14px; width:14px; background:var(--bleu-ciel); clip-path:polygon(100% 0,100% 100%,0 50%); }
+.title-band::after  { content:''; position:absolute; top:0; bottom:0; right:-14px; width:14px; background:var(--bleu-ciel); clip-path:polygon(0 0,0 100%,100% 50%); }
+
+/* ── Grille ── */
+.grid-wrap { display: flex; justify-content: center; padding: 16px 8px 8px; }
+.grid {
+  display: grid;
+  border: 1.5px solid var(--bleu);
+  --cell: 32px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cell {
+  width: var(--cell); height: var(--cell);
+  border: .6px solid var(--bleu);
+  background: #fff; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.cell.black { background: var(--bleu); }
+.cell.black input { display: none; }
+.cell-num {
+  position: absolute; top: 1px; left: 2px;
+  font-size: calc(var(--cell) * 0.22); font-weight: 700;
+  color: var(--bleu); line-height: 1; pointer-events: none; z-index: 2;
+}
+.cell input {
+  width: 100%; height: 100%; border: none; outline: none; background: transparent;
+  text-align: center; font-size: calc(var(--cell) * 0.45); font-weight: 700;
+  color: var(--bleu); text-transform: uppercase; padding: 0;
+  border-radius: 0; -webkit-appearance: none; appearance: none;
+}
+.cell input:focus { background: #dceeff; }
+.cell.correct input { background: var(--ok); color: var(--ok-txt); }
+.cell.wrong   input { background: var(--ko); color: var(--ko-txt); }
+
+/* ── Séparateur ── */
+.wave-sep { margin: 2px 0 10px; padding: 0 20px; opacity: .5; }
+.wave-sep svg { width: 100%; height: 12px; }
+
+/* ── Définitions ── */
+.defs-row { display: flex; gap: 10px; padding: 0 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.def-block { flex: 1 1 260px; border-radius: 10px; overflow: hidden; border: .5px solid #d0ddef; }
+.def-block-title { padding: 6px 10px; font-size: 8.5px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+.def-block.horiz .def-block-title { background: var(--bleu); }
+.def-block.vert  .def-block-title { background: var(--bleu-ciel); }
+.def-block-body { background: var(--fond); padding: 10px 12px; }
+.def-block-body p { font-size: 11px; color: #333; line-height: 1.75; margin: 0; }
+.def-block-body b { color: var(--bleu); }
+
+/* ── Solutions à l'envers ── */
+.answers-block { margin: 0 16px 16px; border-radius: 10px; border: .5px solid #d0ddef; overflow: hidden; }
+.answers-title {
+  background: var(--fond); padding: 6px 12px; font-size: 8px; font-weight: 700;
+  color: var(--bleu-ciel); letter-spacing: 2px; text-align: center; border-bottom: 1px dashed #d0ddef;
+}
+.answers-body { background: #fff; padding: 10px 14px; transform: rotate(180deg); }
+.answers-body p { font-size: 9.5px; color: #888; line-height: 1.8; margin: 0; text-align: center; }
+
+.card-footer { background: var(--bleu); padding: 7px 0; text-align: center; font-size: 7px; color: var(--bleu-clair); letter-spacing: 2px; }
+
+/* ── Feu d'artifice + Bravo ── */
+#fx-canvas {
+  position: fixed; inset: 0; width: 100vw; height: 100vh;
+  pointer-events: none; z-index: 1000; display: none;
+}
+#win-overlay {
+  position: fixed; inset: 0; background: rgba(26,46,90,.55);
+  display: none; align-items: center; justify-content: center; z-index: 1001;
+}
+#win-overlay.show { display: flex; }
+.win-box {
+  background: #fff; border-radius: 20px; padding: 32px 40px;
+  text-align: center; max-width: 90vw;
+  box-shadow: 0 12px 48px rgba(0,0,0,.3);
+  animation: pop .45s cubic-bezier(.18,1.6,.4,1);
+}
+@keyframes pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.win-box .trophy { font-size: 56px; line-height: 1; }
+.win-box h2 { color: var(--bleu); font-size: 30px; letter-spacing: 2px; margin: 10px 0 6px; }
+.win-box p  { color: #555; font-size: 13px; line-height: 1.6; margin-bottom: 18px; }
+.win-box button {
+  background: var(--bleu); color: #fff; border: none; border-radius: 10px;
+  padding: 10px 26px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.win-box button:hover { background: var(--bleu-ciel); }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  body { padding: 12px 6px 40px; }                 /* 6px latéral */
+  .grid-wrap { padding: 12px 4px 6px; }            /* 4px latéral */
+  /* espace réservé : 6+6 (body) + 1+1 (card) + 4+4 (wrap) + 3 (bordure grille) = 25px */
+  .grid { --cell: min(calc((100vw - 26px) / var(--n)), 32px); }
+  .cell-num { font-size: max(calc(var(--cell) * 0.24), 7px); }
+  .title-band { margin: 0 30px; }
+  .win-box { padding: 24px 22px; }
+  .btn { padding: 9px 12px; }                      /* cible tactile plus large */
+  .defs-row { padding: 0 10px; }
+  .answers-block { margin: 0 10px 14px; }
+}
+
+/* ── Impression ── */
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  body { background: #fff; padding: 0; }
+  .toolbar, .hint, #fx-canvas, #win-overlay { display: none !important; }
+  .card { box-shadow: none; border: none; max-width: 180mm; border-radius: 0; }
+  .card-header, .cell.black, .title-band, .def-block-title,
+  .card-footer, .answers-title, .def-block-body {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .cell input { font-size: 0; }
+  .cell.correct input, .cell.wrong input { background: transparent; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <select class="btn" id="grille-select" onchange="loadGrille(this.value)" title="Choisir une grille"></select>
+  <button class="btn btn-primary" onclick="verifier()">✔ Vérifier</button>
+  <button class="btn" onclick="window.print()">🖨 Imprimer / PDF</button>
+  <button class="btn btn-danger" onclick="effacer()">🗑 Effacer</button>
+  <button class="btn btn-danger" onclick="reveler()">👁 Solution</button>
+</div>
+<div class="hint" id="hint">Cliquez sur une case et jouez — votre progression est sauvegardée automatiquement</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="deco" style="top:10px;left:18px;font-size:16px;">★</span>
+    <span class="deco" style="top:6px;right:18px;font-size:12px;">★</span>
+    <span class="deco" style="top:28px;right:40px;font-size:8px;">●</span>
+    <span class="deco" style="top:32px;left:44px;font-size:8px;">●</span>
+    <img id="logo-img" src="logo.png" alt="Guy Hoquet l'Immobilier"
+         onload="this.style.display='block'; document.getElementById('logo-text').style.display='none';">
+    <div id="logo-text">
+      <h1>GUY HOQUET</h1>
+      <p>L'IMMOBILIER</p>
+    </div>
+  </div>
+  <div class="title-band" id="title-band">🔤 MOTS CROISÉS</div>
+
+  <div class="grid-wrap"><div class="grid" id="grid"></div></div>
+
+  <div class="wave-sep">
+    <svg viewBox="0 0 580 12" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,6 Q70,-2 145,6 Q220,14 290,6 Q360,-2 435,6 Q510,14 580,6"
+            fill="none" stroke="#4A90D9" stroke-width="1.5" stroke-dasharray="4,3"/>
+    </svg>
+  </div>
+
+  <div class="defs-row">
+    <div class="def-block horiz">
+      <div class="def-block-title">→ HORIZONTALEMENT</div>
+      <div class="def-block-body"><p id="defs-h"></p></div>
+    </div>
+    <div class="def-block vert">
+      <div class="def-block-title">↓ VERTICALEMENT</div>
+      <div class="def-block-body"><p id="defs-v"></p></div>
+    </div>
+  </div>
+
+  <div class="answers-block">
+    <div class="answers-title">✦ SOLUTIONS (retournez la feuille !) ✦</div>
+    <div class="answers-body"><p id="solutions-txt"></p></div>
+  </div>
+
+  <div class="card-footer">✦ BON COURAGE ! — GUY HOQUET SAINT-OMER ✦</div>
+</div>
+
+<!-- Feu d'artifice + Bravo -->
+<canvas id="fx-canvas"></canvas>
+<div id="win-overlay">
+  <div class="win-box">
+    <div class="trophy">🏆</div>
+    <h2>BRAVO !</h2>
+    <p>Grille parfaite, sans aucune faute.<br>Vous êtes incollable en immobilier !</p>
+    <button onclick="closeWin()">Merci ! 🎉</button>
+  </div>
+</div>
+
+<script src="grilles.js"></script>
+<script>
+let G = null;
+let SIZE = 12;
+let celebrated = false;
+const key = (r,c) => `${r}-${c}`;
+
+// ── Initialisation ──
+function init(){
+  const sel = document.getElementById('grille-select');
+  sel.innerHTML = GRILLES.map(g => `<option value="${g.id}">${g.titre} (${g.taille}×${g.taille})</option>`).join('');
+  loadGrille(GRILLES[0].id);
+}
+
+function loadGrille(id){
+  G = GRILLES.find(g => g.id === id) || GRILLES[0];
+  SIZE = G.taille;
+  celebrated = false;
+  document.getElementById('title-band').textContent = `🔤 MOTS CROISÉS — ${G.titre.toUpperCase()}`;
+  buildGrid();
+  buildDefs();
+  restore();
+  setHint('Cliquez sur une case et jouez — votre progression est sauvegardée automatiquement');
+}
+
+// ── Grille ──
+function buildGrid(){
+  const grid = document.getElementById('grid');
+  grid.style.setProperty('--n', SIZE);
+  grid.style.gridTemplateColumns = `repeat(${SIZE}, var(--cell))`;
+  grid.style.gridTemplateRows = `repeat(${SIZE}, var(--cell))`;
+  grid.innerHTML = '';
+  for(let r=0; r<SIZE; r++) for(let c=0; c<SIZE; c++){
+    const k = key(r,c);
+    const isWhite = k in G.solution;
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (isWhite ? '' : ' black');
+    cell.dataset.r = r; cell.dataset.c = c;
+    if(G.nums[k]){
+      const num = document.createElement('span');
+      num.className = 'cell-num'; num.textContent = G.nums[k];
+      cell.appendChild(num);
+    }
+    if(isWhite){
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.maxLength = 2; inp.autocomplete = 'off';
+      inp.autocapitalize = 'characters';
+      inp.setAttribute('autocorrect','off');
+      inp.spellcheck = false;
+      inp.enterKeyHint = 'next';
+      inp.addEventListener('input', e => {
+        // Ne garder que la DERNIÈRE lettre tapée (fiable même en mode composition Android)
+        const v = e.target.value.replace(/[^a-zA-Z]/g,'').slice(-1).toUpperCase();
+        e.target.value = v;
+        cell.classList.remove('correct','wrong');
+        save();
+        if(v){
+          // Avancement automatique ICI (event input = fiable sur iOS ET Android,
+          // contrairement à keydown où Android renvoie souvent 'Unidentified')
+          const nc = c+1;
+          if(nc<SIZE && key(r,nc) in G.solution) focusCell(r,nc);
+        }
+        checkAutoWin();
+      });
+      inp.addEventListener('keydown', onKeyNav);
+      cell.appendChild(inp);
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function buildDefs(){
+  document.getElementById('defs-h').innerHTML =
+    G.defsH.map(d => `<b>${d.num}.</b> ${d.txt} (${d.len})`).join('<br>');
+  document.getElementById('defs-v').innerHTML =
+    G.defsV.map(d => `<b>${d.num}.</b> ${d.txt} (${d.len})`).join('<br>');
+  document.getElementById('solutions-txt').innerHTML =
+    `→ ${G.solutionsTexte.h}<br>↓ ${G.solutionsTexte.v}`;
+}
+
+// ── Navigation clavier ──
+function onKeyNav(e){
+  const cell = e.target.closest('.cell');
+  const r = +cell.dataset.r, c = +cell.dataset.c;
+  const dirs = {ArrowRight:[0,1], ArrowLeft:[0,-1], ArrowDown:[1,0], ArrowUp:[-1,0]};
+  if(dirs[e.key]){
+    e.preventDefault();
+    let [dr,dc] = dirs[e.key], nr = r+dr, nc = c+dc;
+    while(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE){
+      if(key(nr,nc) in G.solution){ focusCell(nr,nc); return; }
+      nr+=dr; nc+=dc;
+    }
+  }
+  if(e.key==='Backspace' && e.target.value===''){
+    let nc = c-1;
+    if(nc>=0 && key(r,nc) in G.solution) focusCell(r,nc);
+  }
+}
+
+function focusCell(r,c){
+  document.querySelectorAll('.cell')[r*SIZE+c]?.querySelector('input')?.focus();
+}
+
+// ── Vérification ──
+function etatGrille(){
+  let total=0, remplies=0, justes=0;
+  document.querySelectorAll('.cell:not(.black)').forEach(cell => {
+    const k = key(+cell.dataset.r, +cell.dataset.c);
+    const v = cell.querySelector('input').value;
+    total++;
+    if(v){ remplies++; if(v === G.solution[k]) justes++; }
+  });
+  return {total, remplies, justes};
+}
+
+function verifier(){
+  document.querySelectorAll('.cell:not(.black)').forEach(cell => {
+    const k = key(+cell.dataset.r, +cell.dataset.c);
+    const inp = cell.querySelector('input');
+    cell.classList.remove('correct','wrong');
+    if(inp.value){
+      if(inp.value === G.solution[k]) cell.classList.add('correct');
+      else cell.classList.add('wrong');
+    }
+  });
+  const {total, justes} = etatGrille();
+  if(justes === total){
+    celebrate();
+  } else {
+    setHint(`${justes}/${total} cases justes — les erreurs sont en rouge`);
+  }
+}
+
+// Détection automatique : dès que la dernière case est remplie sans faute → 🎆
+function checkAutoWin(){
+  if(celebrated) return;
+  const {total, remplies, justes} = etatGrille();
+  if(remplies === total){
+    if(justes === total){
+      document.querySelectorAll('.cell:not(.black)').forEach(c => c.classList.add('correct'));
+      celebrate();
+    } else {
+      setHint('Grille complète… mais il reste des erreurs ! Cliquez sur ✔ Vérifier');
+    }
+  }
+}
+
+// ── Célébration : Bravo + feu d'artifice ──
+function celebrate(){
+  celebrated = true;
+  setHint('🎉 BRAVO ! Grille parfaite — vous êtes incollable en immobilier !', true);
+  document.getElementById('win-overlay').classList.add('show');
+  startFireworks(6000);
+}
+
+function closeWin(){
+  document.getElementById('win-overlay').classList.remove('show');
+}
+
+// Feu d'artifice canvas — vanilla JS, zéro dépendance
+let fxRunning = false;
+function startFireworks(duration){
+  const canvas = document.getElementById('fx-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  canvas.style.display = 'block';
+  fxRunning = true;
+
+  const colors = ['#4A90D9','#7BB8F0','#FFD700','#FF6B6B','#7CE38B','#FFFFFF','#F49AC2'];
+  let particles = [];
+
+  function burst(x, y){
+    const n = 60 + Math.random()*40;
+    const col = colors[Math.floor(Math.random()*colors.length)];
+    for(let i=0;i<n;i++){
+      const a = (Math.PI*2*i)/n + Math.random()*.2;
+      const sp = 2 + Math.random()*4.5;
+      particles.push({
+        x, y,
+        vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        life: 1, decay: .008 + Math.random()*.012,
+        col: Math.random()<.25 ? colors[Math.floor(Math.random()*colors.length)] : col,
+        size: 1.5 + Math.random()*2
+      });
+    }
+  }
+
+  const launcher = setInterval(()=>{
+    burst(canvas.width*(.15+Math.random()*.7), canvas.height*(.12+Math.random()*.45));
+  }, 450);
+  burst(canvas.width/2, canvas.height/3);
+
+  function frame(){
+    if(!fxRunning) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles = particles.filter(p => p.life > 0);
+    for(const p of particles){
+      p.x += p.vx; p.y += p.vy;
+      p.vy += .045;          // gravité
+      p.vx *= .985; p.vy *= .985;
+      p.life -= p.decay;
+      ctx.globalAlpha = Math.max(p.life, 0);
+      ctx.fillStyle = p.col;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  frame();
+
+  setTimeout(()=>{
+    clearInterval(launcher);
+    setTimeout(()=>{
+      fxRunning = false;
+      canvas.style.display = 'none';
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }, 2500);
+  }, duration);
+}
+
+// ── Actions ──
+function effacer(){
+  if(!confirm('Effacer toutes vos lettres ?')) return;
+  document.querySelectorAll('.cell input').forEach(i => i.value='');
+  document.querySelectorAll('.cell').forEach(c => c.classList.remove('correct','wrong'));
+  celebrated = false;
+  save();
+  setHint('Grille effacée — c\'est reparti !');
+}
+
+function reveler(){
+  if(!confirm('Afficher la solution complète ?')) return;
+  celebrated = true;   // pas de feu d'artifice quand on triche 😉
+  document.querySelectorAll('.cell:not(.black)').forEach(cell => {
+    const k = key(+cell.dataset.r, +cell.dataset.c);
+    const inp = cell.querySelector('input');
+    inp.value = G.solution[k];
+    cell.classList.remove('wrong'); cell.classList.add('correct');
+  });
+  save();
+  setHint('Solution affichée');
+}
+
+function setHint(txt, win=false){
+  const h = document.getElementById('hint');
+  h.textContent = txt;
+  h.classList.toggle('win', win);
+}
+
+// ── Sauvegarde locale ──
+function save(){
+  const data = {};
+  document.querySelectorAll('.cell input').forEach(inp => {
+    const cell = inp.closest('.cell');
+    if(inp.value) data[key(+cell.dataset.r, +cell.dataset.c)] = inp.value;
+  });
+  try { localStorage.setItem('mc-'+G.id, JSON.stringify(data)); } catch(e){}
+}
+
+function restore(){
+  try {
+    const data = JSON.parse(localStorage.getItem('mc-'+G.id) || '{}');
+    document.querySelectorAll('.cell input').forEach(inp => {
+      const cell = inp.closest('.cell');
+      const k = key(+cell.dataset.r, +cell.dataset.c);
+      if(data[k]) inp.value = data[k];
+    });
+    // Si la grille restaurée est déjà parfaite, on ne relance pas le feu d'artifice
+    const {total, remplies, justes} = etatGrille();
+    if(remplies === total && justes === total) celebrated = true;
+  } catch(e){}
+}
+
+window.addEventListener('resize', ()=>{
+  const c = document.getElementById('fx-canvas');
+  if(fxRunning){ c.width = innerWidth; c.height = innerHeight; }
+});
+
+init();
+</script>
+</body>
+</html>

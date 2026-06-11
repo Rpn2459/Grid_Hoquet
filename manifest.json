@@ -1,0 +1,11 @@
+{
+  "name": "Mots Croisés Immobilier – Guy Hoquet Saint-Omer",
+  "short_name": "Mots Croisés GH",
+  "description": "Grilles de mots croisés sur le thème de l'immobilier, par Guy Hoquet Saint-Omer",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#e2e9f4",
+  "theme_color": "#1A2E5A",
+  "lang": "fr",
+  "icons": []
+}
