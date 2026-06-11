@@ -39,9 +39,9 @@ const GRILLES = [
       {num:2,  txt:"Il complète parfois le numéro de la rue", len:3},
       {num:3,  txt:"Registre officiel des parcelles d'une commune", len:8},
       {num:5,  txt:"Somme avancée par la banque pour l'achat", len:4},
-      {num:8,  txt:"Ce que fait la clé remise à la signature", len:5},
+      {num:8,  txt:"Permettre l'accès à un lieu", len:5},
       {num:9,  txt:"Niveau desservi par l'escalier", len:5},
-      {num:10, txt:"Comme partent les biens bien placés !", len:4}
+      {num:10, txt:"Comment partent les biens bien placés !", len:4}
     ],
     solutionsTexte: {
       h: "4. NOTAIRES · 6. BAIL · 7. ÉTÉ · 8. OFFRE · 10. VIAGER · 11. RENTE · 12. TAUX · 13. LOGE",
